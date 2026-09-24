@@ -12,10 +12,13 @@
     PyInstaller 不能跨平台打包 —— 要得到 Windows 的 .exe，必须在 Windows 上执行；
     要得到 macOS 的 .app，必须在 macOS 上执行。
 """
+import os
 import sys
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('web', 'web')]
+# web 目录只是「开发时热改界面」用；界面已内联进 web_assets.py，
+# 所以这里目录不存在也能正常打包。
+datas = [('web', 'web')] if os.path.isdir('web') else []
 binaries = []
 hiddenimports = []
 
