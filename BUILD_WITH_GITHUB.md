@@ -17,17 +17,22 @@ GitHub Actions 提供免费的 Windows 云主机，可以在那里打包，再�
 
 ## 第二步：上传代码
 
-在仓库页面点 **Add file → Upload files**，把 `bilibili_downloader` 文件夹里的这些文件拖进去：
+在仓库页面点 **Add file → Upload files**，把 **`bilibili_downloader/github_upload/`** 里的文件**全部拖进去**。
+
+> 我已经准备好了一个干净的上传包：`github_upload/`（约 100K）。
+> **所有文件都平铺在根目录，没有子文件夹** —— 因为 GitHub 网页上传不支持子目录，
+> 界面已内联进 `web_assets.py`，不再需要 `web/` 文件夹。
 
 ```
 必传（缺一不可）：
   core.py
   server.py
+  web_assets.py            ← 网页界面（已内联，替代 web/index.html）
   requirements.txt
   bilibili_downloader.spec
-  web/index.html          ← 要把 web 文件夹整个拖进去
 
 建议一起传：
+  build_assets.py          ← 改界面后重新生成 web_assets.py 用
   .gitignore
   README.md
   run.sh  run.bat  build.bat  build.sh
@@ -117,6 +122,11 @@ jobs:
 
 **Q：exe 会被杀毒软件报毒吗？**
 PyInstaller 打包的程序常被误报，属普遍现象。加到杀软白名单即可（源码都在仓库里，可自行审查）。
+
+**Q：界面文件在哪？我没看到 `web` 文件夹。**
+界面已经内联进 `web_assets.py` 了，这样 GitHub 网页上传才不会丢文件（网页上传不支持子文件夹）。
+要改界面，就改本地的 `web/index.html`，然后运行 `python build_assets.py` 重新生成 `web_assets.py` 再上传。
+程序运行时：有 `web/index.html` 就用它，没有就用内联的那份。
 
 **Q：能同时打 Mac 版吗？**
 `.github/workflows/build.yml` 里已包含一个 macOS 构建任务，会额外产出 `B站下载器-macOS-app`。不需要的话可以不管。
