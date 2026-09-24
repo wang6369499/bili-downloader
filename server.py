@@ -29,6 +29,25 @@ import core
 WEB_DIR = os.path.join(core.resource_dir(), "web")
 DEFAULT_PORT = 9876
 
+# 界面优先读 web/index.html（方便开发时直接改），读不到则用内联进代码的备份。
+# 内联备份由 build_assets.py 生成，保证扁平单目录也能正常运行（GitHub 网页上传
+# 不支持子文件夹，PyInstaller 也不必再 --add-data）。
+INDEX_HTML_FALLBACK = ""
+try:
+    from web_assets import INDEX_HTML as INDEX_HTML_FALLBACK
+except Exception:
+    INDEX_HTML_FALLBACK = ""
+
+
+def load_index_html():
+    """返回首页 HTML 的 bytes。"""
+    p = os.path.join(WEB_DIR, "index.html")
+    try:
+        with open(p, "rb") as f:
+            return f.read()
+    except Exception:
+        return INDEX_HTML_FALLBACK.encode("utf-8")
+
 # 可写数据（cookie / 配置 / 下载）一律放 exe 旁边，避免打包后被写入临时目录丢失
 DATA_DIR = core.app_dir()
 os.makedirs(os.path.join(DATA_DIR, "downloads"), exist_ok=True)
@@ -106,8 +125,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path in ("/", "/index.html"):
-            self._send_file(os.path.join(WEB_DIR, "index.html"),
-                            "text/html; charset=utf-8")
+            data = load_index_html()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
         elif self.path == "/api/config":
             self._send_json(load_config())
         elif self.path == "/api/tasks":
