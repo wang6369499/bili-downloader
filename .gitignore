@@ -1,0 +1,26 @@
+# 敏感信息 —— 绝对不要提交
+cookies.txt
+config.json
+*.cookies
+
+# 下载的视频与中间文件
+downloads/
+*.part
+*.temp.mp4
+*.m4a
+*.mp4
+
+# 构建产物
+dist/
+build/
+*.spec.bak
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 系统文件
+.DS_Store
+Thumbs.db
